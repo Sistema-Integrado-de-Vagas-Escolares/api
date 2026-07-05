@@ -74,7 +74,7 @@ wrangler.jsonc
 worker-configuration.d.ts
 ```
 
-### Fluxo de uma requisicao
+### Fluxo de uma requisição
 
 1. **Route**: define o path/método HTTP e os middlewares aplicados (`src/routes`).
 2. **Middleware**: valida autenticação (`auth.middleware`) e autorizacão por papel (`authorization.middleware`) antes de chegar ao controller.
