@@ -9,29 +9,29 @@ API do Sistema Integrado de Vagas Escolares (SIVE), desenvolvida em TypeScript c
 - Conta Cloudflare com Wrangler configurado (`npx wrangler login`)
 - Banco de dados PostgreSQL acessível pelo Worker
 
-### Instalacao
+### Instalação
 
-Clone o repositorio e acesse a pasta `api`:
+Clone o repositório e acesse a pasta `api`:
 
 ```bash
 git clone https://github.com/Sistema-Integrado-de-Vagas-Escolares/api.git
 cd api
 ```
 
-Instale as dependencias do projeto:
+Instale as dependências do projeto:
 
 ```bash
 npm install
 ```
 
-### Variaveis de ambiente
+### Variáveis de ambiente
 
-A API depende de variaveis/segredos configurados no Cloudflare Worker (veja `wrangler.jsonc` e `worker-configuration.d.ts`). As principais sao:
+A API depende de variáveis/segredos configurados no Cloudflare Worker (veja `wrangler.jsonc` e `worker-configuration.d.ts`). As principais são:
 
-| Variavel | Descricao |
+| Variável | Descrição |
 | --- | --- |
-| `JWT_SECRET` | Segredo usado para assinar e validar os tokens de autenticacao dos administradores |
-| Conexao com o Postgres | String/credenciais usadas pela camada de acesso a dados (`src/lib/db`) |
+| `JWT_SECRET` | Segredo usado para assinar e validar os tokens de autenticação dos administradores |
+| Conexão com o Postgres | String/credenciais usadas pela camada de acesso a dados (`src/lib/db`) |
 
 Para desenvolvimento local, crie um arquivo `.dev.vars` na raiz do projeto com esses valores, seguindo o formato aceito pelo Wrangler:
 
@@ -47,28 +47,28 @@ Inicie o Worker localmente com:
 npm run dev
 ```
 
-O Wrangler vai disponibilizar a API em `http://localhost:8787` por padrao.
+O Wrangler vai disponibilizar a API em `http://localhost:8787` por padrão.
 
 ### Estrutura do projeto
 
-O projeto segue uma organizacao inspirada no padrao MVC, adaptada para Workers com Hono:
+O projeto segue uma organização inspirada no padrão MVC, adaptada para Workers com Hono:
 
 ```plaintext
 src/
- ├── controllers/     # Recebem a requisicao, validam entrada e chamam os services
- ├── services/        # Regras de negocio e orquestracao entre repositories
+ ├── controllers/     # Recebem a requisição, validam entrada e chamam os services
+ ├── services/        # Regras de negócio e orquestração entre repositories
  ├── repositories/     # Acesso a dados (queries ao Postgres)
- ├── models/          # Tipos e contratos de dados (records de banco, DTOs publicos)
- ├── routes/          # Definicao das rotas Hono e agrupamento por dominio
- ├── middlewares/      # Autenticacao, autorizacao e tratamento de erros
- ├── validators/       # Schemas Zod para validacao de payloads e parametros
- ├── lib/             # Integracoes de baixo nivel (jwt, banco de dados)
- ├── utils/           # Helpers (respostas padronizadas, erros de aplicacao, hashing)
+ ├── models/          # Tipos e contratos de dados (records de banco, DTOs públicos)
+ ├── routes/          # Definição das rotas Hono e agrupamento por domínio
+ ├── middlewares/      # Autenticação, autorização e tratamento de erros
+ ├── validators/       # Schemas Zod para validação de payloads e parâmetros
+ ├── lib/             # Integrações de baixo nível (jwt, banco de dados)
+ ├── utils/           # Helpers (respostas padronizadas, erros de aplicação, hashing)
  ├── types/           # Tipos globais (contexto do Hono, payloads de auth)
  └── index.ts         # Ponto de entrada do Worker
 
 migrations/
- └── *.sql            # Scripts de migracao do banco de dados
+ └── *.sql            # Scripts de migração do banco de dados
 
 wrangler.jsonc
 worker-configuration.d.ts
@@ -76,55 +76,55 @@ worker-configuration.d.ts
 
 ### Fluxo de uma requisicao
 
-1. **Route**: define o path/metodo HTTP e os middlewares aplicados (`src/routes`).
-2. **Middleware**: valida autenticacao (`auth.middleware`) e autorizacao por papel (`authorization.middleware`) antes de chegar ao controller.
-3. **Controller**: extrai parametros/payload, valida com Zod (`validators`) e delega para o service.
-4. **Service**: aplica regras de negocio e converte entre o formato do banco e o formato publico da API.
+1. **Route**: define o path/método HTTP e os middlewares aplicados (`src/routes`).
+2. **Middleware**: valida autenticação (`auth.middleware`) e autorizacão por papel (`authorization.middleware`) antes de chegar ao controller.
+3. **Controller**: extrai parâmetros/payload, valida com Zod (`validators`) e delega para o service.
+4. **Service**: aplica regras de negócio e converte entre o formato do banco e o formato publico da API.
 5. **Repository**: executa as queries no Postgres e retorna os registros brutos.
-6. Erros de negocio sao lancados como `AppError` e tratados de forma centralizada pelo `error.middleware`, garantindo respostas padronizadas.
+6. Erros de negócio são lançados como `AppError` e tratados de forma centralizada pelo `error.middleware`, garantindo respostas padronizadas.
 
-### Autenticacao
+### Autenticação
 
-A autenticacao de administradores e feita via JWT:
+A autenticação de administradores e feita via JWT:
 
 - `POST /admin/login` valida credenciais e retorna um token assinado com `jose`.
 - O middleware `requireAdminAuth` exige o header `Authorization: Bearer <token>` nas rotas protegidas e injeta o admin autenticado no contexto.
 - O middleware `requireRole` permite restringir rotas por papel (`admin` ou `super_admin`).
 
-### Rotas disponiveis
+### Rotas disponíveis
 
-| Metodo | Rota | Descricao | Protegida |
+| Método | Rota | Descrição | Protegida |
 | --- | --- | --- | --- |
-| POST | `/admin/login` | Autentica um administrador | Nao |
+| POST | `/admin/login` | Autentica um administrador | Não |
 | GET | `/admin/city-halls` | Lista prefeituras cadastradas | Sim |
 | GET | `/admin/city-halls/:id` | Detalha uma prefeitura | Sim |
 | POST | `/admin/city-halls` | Cria uma nova prefeitura | Sim |
 | PUT | `/admin/city-halls/:id` | Atualiza dados de uma prefeitura | Sim |
 | PATCH | `/admin/city-halls/:id/password` | Atualiza a senha de acesso da prefeitura | Sim |
 | DELETE | `/admin/city-halls/:id` | Remove uma prefeitura | Sim |
-| GET | `/admin/settings` | Obtem as configuracoes globais do sistema | Sim |
-| PUT | `/admin/settings` | Atualiza as configuracoes globais do sistema | Sim |
+| GET | `/admin/settings` | Obtém as configurações globais do sistema | Sim |
+| PUT | `/admin/settings` | Atualiza as configurações globais do sistema | Sim |
 
-Todas as respostas seguem um formato padronizado (`ok`/`fail`, definidos em `utils/response`), incluindo mensagens de erro com lista de problemas de validacao quando aplicavel.
+Todas as respostas seguem um formato padronizado (`ok`/`fail`, definidos em `utils/response`), incluindo mensagens de erro com lista de problemas de validação quando aplicável.
 
-### Principais dependencias
+### Principais dependências
 
-- [`hono`](https://hono.dev/) — framework web leve, compativel com Cloudflare Workers
-- [`jose`](https://github.com/panva/jose) — geracao e verificacao de JWT
-- [`zod`](https://zod.dev/) — validacao de schemas de entrada
+- [`hono`](https://hono.dev/) — framework web leve, compatível com Cloudflare Workers
+- [`jose`](https://github.com/panva/jose) — geração e verificação de JWT
+- [`zod`](https://zod.dev/) — validação de schemas de entrada
 - [`bcryptjs`](https://github.com/dcodeIO/bcrypt.js) — hashing de senhas
 - [`pg`](https://node-postgres.com/) — cliente PostgreSQL
 - [`wrangler`](https://developers.cloudflare.com/workers/wrangler/) — CLI de desenvolvimento e deploy de Cloudflare Workers
 
-### Roadmap - proximas implementacoes
+### Roadmap - próximas implementações
 
-Os modulos abaixo ainda nao estao implementados e representam os proximos passos da API:
+Os módulos abaixo ainda não estão implementados e representam os proximos passos da API:
 
 #### Painel da Prefeitura
 
-Rotas para a prefeitura gerenciar suas proprias escolas, vagas e usuarios, dentro do escopo da propria rede.
+Rotas para a prefeitura gerenciar suas próprias escolas, vagas e usuários, dentro do escopo da própria rede.
 
-| Metodo | Rota (sugestao) | Descricao |
+| Método | Rota (sugestao) | Descrição |
 | --- | --- | --- |
 | POST | `/city-hall/login` | Autentica uma prefeitura |
 | GET | `/city-hall/schools` | Lista escolas da rede |
@@ -132,61 +132,48 @@ Rotas para a prefeitura gerenciar suas proprias escolas, vagas e usuarios, dentr
 | GET | `/city-hall/schools/:id` | Detalha uma escola |
 | PUT | `/city-hall/schools/:id` | Atualiza dados de uma escola |
 | DELETE | `/city-hall/schools/:id` | Remove uma escola |
-| GET | `/city-hall/vacancies` | Consolida vagas disponiveis por escola/serie |
+| GET | `/city-hall/vacancies` | Consolida vagas disponíveis por escola/série |
 
 #### Painel do Aluno
 
-Rotas para consulta de matricula, status de vaga e historico escolar pelo proprio aluno.
+Rotas para consulta de matrícula, status de vaga e histórico escolar pelo próprio aluno.
 
-| Metodo | Rota (sugestao) | Descricao |
+| Método | Rota (sugestão) | Descrição |
 | --- | --- | --- |
 | POST | `/student/login` | Autentica um aluno |
 | GET | `/student/me` | Dados do aluno autenticado |
-| GET | `/student/enrollment` | Situacao da matricula atual |
-| GET | `/student/enrollment/history` | Historico de matriculas/transferencias |
+| GET | `/student/enrollment` | Situação da matrícula atual |
+| GET | `/student/enrollment/history` | Histórico de matrículas/transferências |
 
-#### Painel do Responsavel
+#### Painel do Responsável
 
-Rotas para o responsavel acompanhar e solicitar matriculas de um ou mais alunos vinculados.
+Rotas para o responsável acompanhar e solicitar matrículas de um ou mais alunos vinculados.
 
-| Metodo | Rota (sugestao) | Descricao |
+| Método | Rota (sugestão) | Descrição |
 | --- | --- | --- |
-| POST | `/guardian/login` | Autentica um responsavel |
-| GET | `/guardian/students` | Lista alunos vinculados ao responsavel |
-| POST | `/guardian/enrollment-requests` | Solicita matricula/transferencia para um aluno |
-| GET | `/guardian/enrollment-requests/:id` | Acompanha status de uma solicitacao |
+| POST | `/guardian/login` | Autentica um responsável |
+| GET | `/guardian/students` | Lista alunos vinculados ao responsável |
+| POST | `/guardian/enrollment-requests` | Solicita matrícula/transferência para um aluno |
+| GET | `/guardian/enrollment-requests/:id` | Acompanha status de uma solicitação |
 
 #### Mapa de Vagas
 
-Rotas publicas/autenticadas para exibir a distribuicao geografica de vagas disponiveis por escola, usadas pelo modulo "Mapa Inteligente".
+Rotas publicas/autenticadas para exibir a distribuição geografica de vagas disponíveis por escola, usadas pelo módulo "Mapa Inteligente".
 
-| Metodo | Rota (sugestao) | Descricao |
+| Método | Rota (sugestão) | Descrição |
 | --- | --- | --- |
-| GET | `/vacancy-map/schools` | Lista escolas com geolocalizacao e vagas disponiveis |
-| GET | `/vacancy-map/schools/:id` | Detalha vagas disponiveis por serie/turno em uma escola |
-| GET | `/vacancy-map/regions` | Agrega disponibilidade de vagas por regiao/bairro |
+| GET | `/vacancy-map/schools` | Lista escolas com geolocalização e vagas disponíveis |
+| GET | `/vacancy-map/schools/:id` | Detalha vagas disponíveis por série/turno em uma escola |
+| GET | `/vacancy-map/regions` | Agrega disponibilidade de vagas por região/bairro |
 
 #### API de Eventos (Webhooks)
 
-Pontos de entrada para eventos externos que devem atualizar o numero de vagas disponiveis em tempo real. Cada webhook recebe o evento, valida o payload e aciona o service responsavel por recalcular a ocupacao da escola/turma afetada.
+Pontos de entrada para eventos externos que devem atualizar o numero de vagas disponíveis em tempo real. Cada webhook recebe o evento, valida o payload e aciona o service responsável por recalcular a ocupação da escola/turma afetada.
 
-| Metodo | Rota (sugestao) | Evento | Descricao |
+| Método | Rota (sugestão) | Evento | Descrição |
 | --- | --- | --- | --- |
-| POST | `/events/enrollment-completed` | Matricula realizada | Decrementa a vaga disponivel na turma/serie da escola |
-| POST | `/events/enrollment-cancelled` | Cancelamento de matricula | Devolve a vaga a turma/serie da escola |
+| POST | `/events/enrollment-completed` | Matrícula realizada | Decrementa a vaga disponível na turma/serie da escola |
+| POST | `/events/enrollment-cancelled` | Cancelamento de matrícula | Devolve a vaga a turma/série da escola |
 | POST | `/events/student-dismissed` | Desligamento de aluno | Devolve a vaga e atualiza o status do aluno |
-| POST | `/events/student-transferred` | Transferencia entre escolas | Devolve a vaga na escola de origem e decrementa na escola de destino |
-| POST | `/events/capacity-changed` | Alteracao da capacidade de atendimento | Recalcula o total de vagas disponiveis da turma/serie a partir da nova capacidade |
-
-Pontos em aberto para a implementacao dessa API:
-
-- Definir mecanismo de autenticacao/assinatura dos webhooks (ex.: chave secreta compartilhada ou assinatura HMAC no header)
-- Garantir idempotencia (o mesmo evento nao pode ser processado duas vezes)
-- Registrar log/auditoria de cada evento recebido e do impacto no saldo de vagas
-- Tratar eventos fora de ordem ou duplicados (ex.: cancelamento antes da confirmacao da matricula)
-
-### Observacoes para a banca
-
-A API pode ser executada localmente com `npm run dev`, desde que as variaveis de ambiente (`.dev.vars`) estejam configuradas com acesso a um banco Postgres.
-O deploy esta preparado para Cloudflare Workers via Wrangler.
-Para testar o frontend integrado, execute esta API em paralelo ao projeto `frontend`.
+| POST | `/events/student-transferred` | Transferência entre escolas | Devolve a vaga na escola de origem e decrementa na escola de destino |
+| POST | `/events/capacity-changed` | Alteração da capacidade de atendimento | Recalcula o total de vagas disponíveis da turma/série a partir da nova capacidade |
