@@ -140,6 +140,75 @@ Todas as respostas seguem um formato padronizado (`ok`/`fail`, definidos em `uti
 - [`pg`](https://node-postgres.com/) — cliente PostgreSQL
 - [`wrangler`](https://developers.cloudflare.com/workers/wrangler/) — CLI de desenvolvimento e deploy de Cloudflare Workers
 
+### Roadmap - proximas implementacoes
+
+Os modulos abaixo ainda nao estao implementados e representam os proximos passos da API:
+
+#### Painel da Prefeitura
+
+Rotas para a prefeitura gerenciar suas proprias escolas, vagas e usuarios, dentro do escopo da propria rede.
+
+| Metodo | Rota (sugestao) | Descricao |
+| --- | --- | --- |
+| POST | `/city-hall/login` | Autentica uma prefeitura |
+| GET | `/city-hall/schools` | Lista escolas da rede |
+| POST | `/city-hall/schools` | Cadastra uma nova escola |
+| GET | `/city-hall/schools/:id` | Detalha uma escola |
+| PUT | `/city-hall/schools/:id` | Atualiza dados de uma escola |
+| DELETE | `/city-hall/schools/:id` | Remove uma escola |
+| GET | `/city-hall/vacancies` | Consolida vagas disponiveis por escola/serie |
+
+#### Painel do Aluno
+
+Rotas para consulta de matricula, status de vaga e historico escolar pelo proprio aluno.
+
+| Metodo | Rota (sugestao) | Descricao |
+| --- | --- | --- |
+| POST | `/student/login` | Autentica um aluno |
+| GET | `/student/me` | Dados do aluno autenticado |
+| GET | `/student/enrollment` | Situacao da matricula atual |
+| GET | `/student/enrollment/history` | Historico de matriculas/transferencias |
+
+#### Painel do Responsavel
+
+Rotas para o responsavel acompanhar e solicitar matriculas de um ou mais alunos vinculados.
+
+| Metodo | Rota (sugestao) | Descricao |
+| --- | --- | --- |
+| POST | `/guardian/login` | Autentica um responsavel |
+| GET | `/guardian/students` | Lista alunos vinculados ao responsavel |
+| POST | `/guardian/enrollment-requests` | Solicita matricula/transferencia para um aluno |
+| GET | `/guardian/enrollment-requests/:id` | Acompanha status de uma solicitacao |
+
+#### Mapa de Vagas
+
+Rotas publicas/autenticadas para exibir a distribuicao geografica de vagas disponiveis por escola, usadas pelo modulo "Mapa Inteligente".
+
+| Metodo | Rota (sugestao) | Descricao |
+| --- | --- | --- |
+| GET | `/vacancy-map/schools` | Lista escolas com geolocalizacao e vagas disponiveis |
+| GET | `/vacancy-map/schools/:id` | Detalha vagas disponiveis por serie/turno em uma escola |
+| GET | `/vacancy-map/regions` | Agrega disponibilidade de vagas por regiao/bairro |
+
+#### API de Eventos (Webhooks)
+
+Pontos de entrada para eventos externos que devem atualizar o numero de vagas disponiveis em tempo real. Cada webhook recebe o evento, valida o payload e aciona o service responsavel por recalcular a ocupacao da escola/turma afetada.
+
+| Metodo | Rota (sugestao) | Evento | Descricao |
+| --- | --- | --- | --- |
+| POST | `/events/enrollment-completed` | Matricula realizada | Decrementa a vaga disponivel na turma/serie da escola |
+| POST | `/events/enrollment-cancelled` | Cancelamento de matricula | Devolve a vaga a turma/serie da escola |
+| POST | `/events/student-dismissed` | Desligamento de aluno | Devolve a vaga e atualiza o status do aluno |
+| POST | `/events/student-transferred` | Transferencia entre escolas | Devolve a vaga na escola de origem e decrementa na escola de destino |
+| POST | `/events/capacity-changed` | Alteracao da capacidade de atendimento | Recalcula o total de vagas disponiveis da turma/serie a partir da nova capacidade |
+
+Pontos em aberto para a implementacao dessa API:
+
+- Definir mecanismo de autenticacao/assinatura dos webhooks (ex.: chave secreta compartilhada ou assinatura HMAC no header)
+- Garantir idempotencia (o mesmo evento nao pode ser processado duas vezes)
+- Registrar log/auditoria de cada evento recebido e do impacto no saldo de vagas
+- Tratar eventos fora de ordem ou duplicados (ex.: cancelamento antes da confirmacao da matricula)
+
 ### Observacoes para a banca
 
 A API pode ser executada localmente com `npm run dev`, desde que as variaveis de ambiente (`.dev.vars`) estejam configuradas com acesso a um banco Postgres.
