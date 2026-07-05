@@ -39,12 +39,6 @@ Para desenvolvimento local, crie um arquivo `.dev.vars` na raiz do projeto com e
 JWT_SECRET="sua-chave-secreta"
 ```
 
-Apos alterar bindings ou variaveis, regenere os tipos com:
-
-```bash
-npm run cf-typegen
-```
-
 ### Executar em desenvolvimento
 
 Inicie o Worker localmente com:
