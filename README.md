@@ -55,24 +55,6 @@ npm run dev
 
 O Wrangler vai disponibilizar a API em `http://localhost:8787` por padrao.
 
-### Verificar tipos
-
-Para validar a tipagem do projeto sem gerar build:
-
-```bash
-npm run typecheck
-```
-
-### Publicar na Cloudflare Workers
-
-Para publicar a API:
-
-```bash
-npm run deploy
-```
-
-O comando executa `wrangler deploy --minify`, gerando um build otimizado antes do envio.
-
 ### Estrutura do projeto
 
 O projeto segue uma organizacao inspirada no padrao MVC, adaptada para Workers com Hono:
