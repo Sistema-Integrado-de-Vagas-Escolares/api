@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIVE — Diagrama de Casos de Uso (UML Use Case)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <style>
+    :root {
+      --bg: #090e17;
+      --panel: #131b2e;
+      --border: #23314d;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent: #818cf8;
+      --db-accent: #38bdf8;
+      --queue-accent: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      background: rgba(99, 102, 241, 0.18);
+      color: var(--accent);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    h1 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button, a.btn {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    button:hover, a.btn:hover {
+      background: #1e293b;
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.primary, a.btn.primary {
+      background: var(--primary);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.primary:hover, a.btn.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    #diagram-container {
+      flex: 1;
+      position: relative;
+      background: radial-gradient(circle at 50% 50%, #151d30 0%, #090e17 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #svg-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .hint-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(19, 27, 46, 0.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-size: 12px;
+      color: var(--text-muted);
+      pointer-events: none;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .floating-controls {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 5;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 18px;
+      background: var(--panel);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4);
+    }
+
+    #loading {
+      position: absolute;
+      font-size: 16px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      border-top: 3px solid var(--accent);
+      width: 22px;
+      height: 22px;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-group">
+      <span class="badge">UML CASOS DE USO</span>
+      <h1>SIVE — Diagrama de Casos de Uso com Todos os Atores e Banco de Dados</h1>
+    </div>
+
+    <div class="actions">
+      <a href="diagrama_classes.html" class="btn" style="background:#0284c7; border-color:#38bdf8; color:#fff;">☕ Classes Java</a>
+      <a href="erd.html" class="btn">🗄️ Modelo de Banco (ERD)</a>
+      <a href="guia_leitura_modelo.html" class="btn">📖 Guia do Modelo</a>
+      <button onclick="resetZoom()">↺ Centralizar</button>
+      <button onclick="downloadPNG()">📷 Salvar PNG</button>
+      <button class="primary" onclick="copyMermaidCode()">📋 Copiar Código Mermaid</button>
+    </div>
+  </header>
+
+  <div id="diagram-container">
+    <div id="loading">
+      <div class="spinner"></div>
+      <span>Carregando diagrama de casos de uso...</span>
+    </div>
+    <div id="svg-wrapper"></div>
+
+    <div class="floating-controls">
+      <button class="icon-btn" onclick="zoomIn()" title="Aumentar zoom">+</button>
+      <button class="icon-btn" onclick="zoomOut()" title="Diminuir zoom">-</button>
+      <button class="icon-btn" onclick="resetZoom()" title="Resetar visão">⛶</button>
+    </div>
+
+    <div class="hint-bar">
+      <span>💡</span> Use o botão esquerdo para arrastar (pan) · Roda do mouse para zoom · O Banco de Dados participa como ator transacional ativo
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#090e17',
+        primaryColor: '#1e293b',
+        primaryBorderColor: '#6366f1',
+        primaryTextColor: '#f8fafc',
+        lineColor: '#818cf8',
+        secondaryColor: '#131b2e',
+        tertiaryColor: '#1e293b'
+      }
+    });
+
+    const mermaidCode = `flowchart LR
+    %% Atores Humanos
+    SuperAdmin["👑 Superadmin SIVE"]
+    OrgAdmin["🏛️ Admin Organização<br/>(Secretaria de Educação)"]
+    OrgOperator["🎧 Operador Central de Vagas"]
+    SchoolAdmin["🏫 Diretor Escolar"]
+    SchoolStaff["📝 Secretário Escolar"]
+    Guardian["👨‍👩‍👧 Pai / Responsável Legal"]
+
+    %% Atores de Sistema e Infraestrutura
+    QueueEngine["⚡ Motor da Fila<br/>(Queue Engine / Batch)"]
+    NotificationGw["📨 Gateway Notificações<br/>(WhatsApp / Email / SMS)"]
+    PublicAudit["⚖️ Ministério Público /<br/>Tribunal de Contas"]
+    Database[("🗄️ Banco de Dados Relacional<br/>(PostgreSQL 14+)")]
+
+    %% Casos de Uso: Administração SaaS & Organização
+    subgraph Modulo_Administracao ["1. Administração da Plataforma & Configurações"]
+        UC01(["UC-01: Cadastrar Organização e Subdomínio"])
+        UC02(["UC-02: Parametrizar Critérios de Fila e Desempate"])
+        UC03(["UC-03: Cadastrar e Vincular Escolas"])
+        UC04(["UC-04: Gerenciar Vínculos e Papéis RBAC"])
+    end
+
+    %% Casos de Uso: Oferta de Vagas e Turmas
+    subgraph Modulo_Vagas ["2. Oferta de Vagas e Gestão Escolar"]
+        UC05(["UC-05: Cadastrar Turmas e Capacidade"])
+        UC06(["UC-06: Ajustar Oferta de Vagas"])
+        UC07(["UC-07: Registrar Histórico e Justificativa de Vaga"])
+    end
+
+    %% Casos de Uso: Comunidade Escolar e Inscrição
+    subgraph Modulo_Inscricao ["3. Inscrições e Cadastro da Comunidade"]
+        UC08(["UC-08: Cadastrar Responsável e Aluno"])
+        UC09(["UC-09: Solicitar Vaga na Fila de Espera"])
+        UC10(["UC-10: Anexar Documentos Comprobatórios"])
+        UC11(["UC-11: Validar Comprovação Documental"])
+    end
+
+    %% Casos de Uso: Motor de Fila e Classificação
+    subgraph Modulo_Fila ["4. Motor de Classificação e Posição da Fila"]
+        UC12(["UC-12: Calcular Pontuação Total e Desempate"])
+        UC13(["UC-13: Recalcular Posições na Fila"])
+        UC14(["UC-14: Consultar Posição Transparente em Tempo Real"])
+    end
+
+    %% Casos de Uso: Convocação, Chamada e Matrícula
+    subgraph Modulo_Convocacao ["5. Convocação, Prazos e Efetivação de Matrícula"]
+        UC15(["UC-15: Convocar Candidato da Fila"])
+        UC16(["UC-16: Responder Convocação (Aceite / Recusa)"])
+        UC17(["UC-17: Monitorar Expiração de Prazo de Comparecimento"])
+        UC18(["UC-18: Repassar Vaga por Não Comparecimento"])
+        UC19(["UC-19: Registrar Movimentação na Linha do Tempo"])
+        UC20(["UC-20: Efetivar Matrícula Oficial na Escola"])
+    end
+
+    %% Casos de Uso: Notificações e Auditoria
+    subgraph Modulo_Governança ["6. Comunicação e Auditoria Pública"]
+        UC21(["UC-21: Disparar Notificação Multicanal Urgente"])
+        UC22(["UC-22: Consultar Trilha de Auditoria e Conformidade"])
+    end
+
+    %% Associações dos Atores Humanos
+    SuperAdmin --> UC01
+    SuperAdmin --> UC04
+
+    OrgAdmin --> UC02
+    OrgAdmin --> UC03
+    OrgAdmin --> UC04
+    OrgAdmin --> UC22
+
+    OrgOperator --> UC11
+    OrgOperator --> UC13
+    OrgOperator --> UC22
+
+    SchoolAdmin --> UC05
+    SchoolAdmin --> UC06
+    SchoolAdmin --> UC15
+
+    SchoolStaff --> UC08
+    SchoolStaff --> UC09
+    SchoolStaff --> UC11
+    SchoolStaff --> UC20
+
+    Guardian --> UC08
+    Guardian --> UC09
+    Guardian --> UC10
+    Guardian --> UC14
+    Guardian --> UC16
+
+    %% Associações dos Atores de Sistema
+    QueueEngine --> UC12
+    QueueEngine --> UC13
+    QueueEngine --> UC17
+    QueueEngine --> UC18
+
+    NotificationGw --> UC21
+    PublicAudit --> UC22
+
+    %% Relações <<include>> e <<extend>>
+    UC06 -.->|include| UC07
+    UC09 -.->|include| UC12
+    UC12 -.->|include| UC13
+    UC15 -.->|include| UC19
+    UC15 -.->|include| UC21
+    UC17 -.->|extend| UC18
+    UC18 -.->|include| UC19
+    UC18 -.->|include| UC21
+    UC20 -.->|include| UC19
+
+    %% Interações com o BANCO DE DADOS (PostgreSQL)
+    UC01 -->|Persiste Tenant e Configs| Database
+    UC02 -->|Grava Critérios em JSONB| Database
+    UC03 -->|Registra Escolas e Geocódigos| Database
+    UC05 -->|Cria Turmas| Database
+    UC06 -->|Aplica Bloqueio Concorrente Otimista| Database
+    UC07 -->|Gera Registro Imutável vacancy_history| Database
+    UC08 -->|Insere Aluno, Responsável e Vínculo N:N| Database
+    UC09 -->|Gera Protocolo Único e Inscrição| Database
+    UC12 -->|Grava Detalhes em application_criteria_scores| Database
+    UC13 -->|Ordena via Índice Composto B-Tree| Database
+    UC15 -->|Atualiza status para chamado e define prazos| Database
+    UC17 -->|Consulta prazos limite expirados| Database
+    UC18 -->|Transição de Estado para expired| Database
+    UC19 -->|Insere Evento Imutável queue_movements| Database
+    UC20 -->|Valida Restrição Unicidade Ativa e Cria Matrícula| Database
+    UC21 -->|Registra Notificação e Status de Envio| Database
+    UC22 -->|Executa Consulta Auditável com diff_data| Database
+`;
+
+    let panZoomInstance = null;
+
+    async function renderDiagram() {
+      const wrapper = document.getElementById('svg-wrapper');
+      const loading = document.getElementById('loading');
+
+      try {
+        const { svg } = await mermaid.render('mermaid-usecase-svg', mermaidCode);
+        loading.style.display = 'none';
+        wrapper.innerHTML = svg;
+
+        const svgElement = wrapper.querySelector('svg');
+        svgElement.style.width = '100%';
+        svgElement.style.height = '100%';
+
+        panZoomInstance = svgPanZoom(svgElement, {
+          zoomEnabled: true,
+          controlIconsEnabled: false,
+          fit: true,
+          center: true,
+          minZoom: 0.1,
+          maxZoom: 10
+        });
+
+      } catch (err) {
+        console.error(err);
+        loading.innerHTML = '<span style="color: #ef4444">Erro ao renderizar o diagrama de casos de uso.</span>';
+      }
+    }
+
+    function zoomIn() {
+      if (panZoomInstance) panZoomInstance.zoomIn();
+    }
+
+    function zoomOut() {
+      if (panZoomInstance) panZoomInstance.zoomOut();
+    }
+
+    function resetZoom() {
+      if (panZoomInstance) {
+        panZoomInstance.reset();
+        panZoomInstance.fit();
+        panZoomInstance.center();
+      }
+    }
+
+    function downloadPNG() {
+      const svg = document.querySelector('#svg-wrapper svg');
+      if (!svg) return alert('Diagrama ainda não carregado');
+
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svg);
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const URLObj = window.URL || window.webkitURL || window;
+      const blobURL = URLObj.createObjectURL(svgBlob);
+
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        const scale = 2;
+        canvas.width = svg.getBoundingClientRect().width * scale || 3200;
+        canvas.height = svg.getBoundingClientRect().height * scale || 2200;
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#090e17';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        const pngURL = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pngURL;
+        downloadLink.download = 'sive-diagrama-casos-de-uso.png';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      };
+      image.src = blobURL;
+    }
+
+    function copyMermaidCode() {
+      navigator.clipboard.writeText(mermaidCode).then(() => {
+        alert('Código Mermaid do diagrama de casos de uso copiado com sucesso!');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', renderDiagram);
+  </script>
+</body>
+</html>
