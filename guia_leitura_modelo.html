@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIVE — Guia de Leitura da Modelagem do Banco de Dados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #111827;
+      --surface-card: #1e293b;
+      --border: #334155;
+      --border-light: #475569;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #0f766e;
+      --primary-light: #14b8a6;
+      --accent: #38bdf8;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    header {
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(20, 184, 166, 0.4);
+    }
+
+    .brand h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border);
+      background: var(--surface-card);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      background: #334155;
+      border-color: var(--primary-light);
+      color: #fff;
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary-light);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(15, 118, 110, 0.4);
+    }
+
+    .btn.primary:hover {
+      background: #115e59;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 50px;
+      padding: 30px 20px;
+      background: radial-gradient(circle at 50% 20%, rgba(20, 184, 166, 0.12) 0%, transparent 70%);
+      border-radius: 20px;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .hero .tag {
+      display: inline-block;
+      background: rgba(20, 184, 166, 0.15);
+      color: var(--primary-light);
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .hero h2 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 750px;
+      margin: 0 auto;
+    }
+
+    .quick-nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 50px;
+    }
+
+    .quick-nav-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .quick-nav-card:hover {
+      background: var(--surface-card);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .quick-nav-card .icon {
+      font-size: 24px;
+    }
+
+    .quick-nav-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .quick-nav-card p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 36px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    section h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    p.section-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* GRID DE SÍMBOLOS */
+    .symbols-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .symbol-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      position: relative;
+    }
+
+    .symbol-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-light);
+      background: rgba(15, 23, 42, 0.8);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 10px;
+      border: 1px solid rgba(20, 184, 166, 0.2);
+    }
+
+    .symbol-card h5 {
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .symbol-card p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* TABELAS EXPLICATIVAS */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(15, 23, 42, 0.9);
+      color: #38bdf8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .callout {
+      background: rgba(15, 118, 110, 0.1);
+      border-left: 4px solid var(--primary-light);
+      padding: 16px 20px;
+      border-radius: 0 10px 10px 0;
+      margin: 20px 0;
+      font-size: 13px;
+    }
+
+    .callout h6 {
+      color: var(--primary-light);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .lifecycle-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .lifecycle-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      background: var(--surface-card);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .step-content h5 {
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-content p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .tag-status {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+
+    .tag-waiting { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .tag-called { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .tag-enrolled { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .tag-rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .tip-box {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+
+    .tip-box h5 {
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .tip-box ul {
+      margin-left: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .tip-box li {
+      margin-bottom: 8px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <div>
+        <h1>SIVE — Guia de Leitura da Modelagem</h1>
+        <p>Documento de Apoio Didático para Defesa e Apresentação</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a href="erd.html" class="btn primary">🗺️ Ver Diagrama Interativo (ERD)</a>
+      <a href="MODELAGEM_BANCO_DE_DADOS.md" class="btn">📄 Ver Especificação (MD)</a>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <div class="hero">
+      <span class="tag">Didática & Arquitetura de Dados</span>
+      <h2>Como Ler e Interpretar o Modelo Relacional do SIVE</h2>
+      <p>
+        Este guia explica a notação gráfica <b>Crow's Foot (Pé de Galinha)</b> utilizada no Mermaid, 
+        o significado de cada símbolo, a mecânica dos relacionamentos (1:1, 1:N, N:N) e como defender 
+        as decisões arquiteturais com segurança diante do seu professor.
+      </p>
+    </div>
+
+    <!-- NAVEGAÇÃO RÁPIDA -->
+    <div class="quick-nav">
+      <a href="#simbolos" class="quick-nav-card">
+        <span class="icon">🔣</span>
+        <div>
+          <h4>Símbolos & Notação</h4>
+          <p>Significado de ||, o{ e PK/FK</p>
+        </div>
+      </a>
+      <a href="#relacionamentos" class="quick-nav-card">
+        <span class="icon">🔗</span>
+        <div>
+          <h4>Relacionamentos</h4>
+          <p>Exemplos reais de 1:1, 1:N e N:N</p>
+        </div>
+      </a>
+      <a href="#lookup" class="quick-nav-card">
+        <span class="icon">🏷️</span>
+        <div>
+          <h4>Tabelas de Status</h4>
+          <p>Sem ENUMs: ID + Code em inglês</p>
+        </div>
+      </a>
+      <a href="#ciclo-fila" class="quick-nav-card">
+        <span class="icon">🔄</span>
+        <div>
+          <h4>Ciclo do Chamado</h4>
+          <p>Transições do aluno na fila</p>
+        </div>
+      </a>
+      <a href="#defesa" class="quick-nav-card">
+        <span class="icon">🎓</span>
+        <div>
+          <h4>Dicas de Apresentação</h4>
+          <p>Como encantar o professor</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- SEÇÃO 1: SÍMBOLOS -->
+    <section id="simbolos">
+      <h3>🔣 1. Notação Crow's Foot (Pé de Galinha) no Mermaid</h3>
+      <p class="section-desc">
+        No Mermaid ERD, a cardinalidade entre duas tabelas é indicada pelos símbolos desenhados nas duas extremidades da linha de conexão. 
+        Cada extremidade define o <b>mínimo</b> e o <b>máximo</b> de registros permitidos.
+      </p>
+
+      <div class="symbols-grid">
+        <div class="symbol-card">
+          <div class="symbol-code">||--o{</div>
+          <h5>Um para Zero ou Muitos</h5>
+          <p>O lado esquerdo tem exatamente 1 (obrigatório). O lado direito tem zero, um ou vários (opcional).</p>
+        </div>
+
+        <div class="symbol-card">
+          <div class="symbol-code">||--|{</div>
+          <h5>Um para Um ou Muitos</h5>
+          <p>O lado esquerdo tem exatamente 1. O lado direito deve ter ao menos 1 e pode ter vários (obrigatório).</p>
+        </div>
+
+        <div class="symbol-card">
+          <div class="symbol-code">||--o|</div>
+          <h5>Um para Zero ou Um</h5>
+          <p>O lado esquerdo tem 1 obrigatório. O lado direito pode ter no máximo 1 ou nenhum (relação 1:1 opcional).</p>
+        </div>
+
+        <div class="symbol-card">
+          <div class="symbol-code">||--||</div>
+          <h5>Exatamente Um para Um</h5>
+          <p>Ambos os lados são estritamente obrigatórios e possuem correspondência única e exclusiva (1:1).</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <h6>💡 Regra de ouro da leitura da linha</h6>
+        <p>
+          Para ler um relacionamento, leia a frase partindo de uma entidade em direção à outra: <br>
+          <i>"Uma <b>ORGANIZATION</b> possui <b>zero ou muitas (o{)</b> <b>SCHOOLS</b>, mas cada <b>SCHOOL</b> pertence a <b>exatamente uma (||)</b> <b>ORGANIZATION</b>."</i>
+        </p>
+      </div>
+
+      <h4 style="margin: 24px 0 12px; font-size: 15px; color:#fff;">Siglas dos Campos nas Tabelas</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Sigla</th>
+            <th>Nome Formal</th>
+            <th>Função no Banco de Dados</th>
+            <th>Exemplo no SIVE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>PK</code></td>
+            <td>Primary Key (Chave Primária)</td>
+            <td>Identificador único e universal do registro. Não aceita nulos nem valores repetidos.</td>
+            <td><code>organizations.id (UUID)</code></td>
+          </tr>
+          <tr>
+            <td><code>FK</code></td>
+            <td>Foreign Key (Chave Estrangeira)</td>
+            <td>Campo que aponta para a <code>PK</code> de outra tabela, garantindo a integridade referencial.</td>
+            <td><code>schools.organization_id</code> aponta para <code>organizations.id</code></td>
+          </tr>
+          <tr>
+            <td><code>UK</code></td>
+            <td>Unique Key (Chave Única)</td>
+            <td>Impede que valores se repitam na coluna, mantendo a unicidade cadastral.</td>
+            <td><code>users.email</code>, <code>organizations.document_cnpj</code>, <code>application_statuses.code</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SEÇÃO 2: RELACIONAMENTOS -->
+    <section id="relacionamentos">
+      <h3>🔗 2. Como Interpretar os Relacionamentos Chave do SIVE</h3>
+      <p class="section-desc">
+        Abaixo estão os 3 padrões de relacionamentos essenciais do nosso modelo, explicando como foram resolvidos no banco de dados.
+      </p>
+
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div style="background:var(--surface-card); padding:20px; border-radius:12px; border:1px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h5 style="color:#38bdf8; font-size:15px;">A) Relacionamento 1:N — Organizações e Escolas</h5>
+            <code>ORGANIZATIONS ||--o{ SCHOOLS</code>
+          </div>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">
+            Uma prefeitura ou rede particular administra múltiplas unidades escolares. Cada escola é cadastrada com a chave estrangeira <code>organization_id</code> apontando para a sua mantenedora.
+          </p>
+          <div style="font-size:12px; background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; font-family:'JetBrains Mono', monospace; color:#94a3b8;">
+            schools (id [PK], organization_id [FK], name, inep_code, ...)
+          </div>
+        </div>
+
+        <div style="background:var(--surface-card); padding:20px; border-radius:12px; border:1px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h5 style="color:#10b981; font-size:15px;">B) Relacionamento N:N — Alunos e Responsáveis (Tabela Associativa)</h5>
+            <code>STUDENTS ||--o{ STUDENT_GUARDIANS }o--|| GUARDIANS</code>
+          </div>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">
+            <b>A dualidade fundamental:</b> Um responsável pode ter múltiplos alunos sob sua tutela (1:N) <i>E</i> um aluno pode ter múltiplos responsáveis no sistema (ex.: Pai e Mãe com guarda compartilhada, ou Mãe e Avó) (N:1). Se colocássemos a FK no aluno, ele só poderia ter um único responsável. Se colocássemos no responsável, ele só poderia ter um único filho. Por isso, no modelo relacional, a solução canônica da 3FN é a <b>tabela associativa</b> <code>student_guardians</code>, que armazena a relação N:N, o parentesco (<code>kinship_type_id</code>) e a indicação de contato prioritário (<code>is_primary_contact</code>).
+          </p>
+          <div style="font-size:12px; background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; font-family:'JetBrains Mono', monospace; color:#94a3b8;">
+            student_guardians (id [PK], student_id [FK], guardian_id [FK], kinship_type_id [FK], is_primary_contact, has_legal_custody)
+          </div>
+        </div>
+
+        <div style="background:var(--surface-card); padding:20px; border-radius:12px; border:1px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h5 style="color:#f59e0b; font-size:15px;">C) Relacionamento 1:0..1 — Usuários de Acesso e Responsáveis</h5>
+            <code>USERS ||--o| GUARDIANS</code>
+          </div>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">
+            Um usuário do sistema pode ser um administrador da prefeitura ou diretor escolar (sem ser um pai de aluno). Por outro lado, muitos responsáveis são cadastrados presencialmente pela secretaria escolar sem que tenham login/e-mail no momento. Por isso, <code>guardians.user_id</code> é <b>anulável (NULLABLE)</b>. Quando o responsável ativa o portal, cria-se o vínculo 1 para 1.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 3: LOOKUP TABLES -->
+    <section id="lookup">
+      <h3>🏷️ 3. Por que NÃO Usamos ENUMs? (A Estratégia das Tabelas de Status)</h3>
+      <p class="section-desc">
+        No SIVE, todas as 18 tabelas de domínio e status foram modeladas com <code>id UUID PRIMARY KEY</code> e <code>code VARCHAR UNIQUE</code> em inglês.
+      </p>
+
+      <div class="symbols-grid">
+        <div class="symbol-card">
+          <h5>🚫 Problema dos ENUMs Tradicionais</h5>
+          <p>
+            No PostgreSQL, <code>CREATE TYPE ... AS ENUM</code> é estático. Adicionar um novo valor exige comandos DDL (<code>ALTER TYPE</code>) que bloqueiam transações em produção, e renomear um rótulo quebra queries antigas.
+          </p>
+        </div>
+        <div class="symbol-card">
+          <h5>✅ Solução com Tabelas de Status</h5>
+          <p>
+            O banco armazena apenas chaves relacionais imutáveis em inglês (ex.: <code>'waiting'</code>, <code>'called'</code>). Novos estados são criados via <code>INSERT</code> simples e o front-end mapeia os textos livremente.
+          </p>
+        </div>
+      </div>
+
+      <h4 style="margin: 20px 0 12px; font-size: 15px; color:#fff;">Como Funciona o Desacoplamento Banco ⟷ Front-end:</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Banco de Dados (Tabela <code>application_statuses</code>)</th>
+            <th>Front-end / Apresentação</th>
+            <th>Comportamento no Negócio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>code: "waiting"</code></td>
+            <td>Tag amarela: <b>"Em Espera"</b></td>
+            <td>Permanece na lista ordenada aguardando vaga aberta.</td>
+          </tr>
+          <tr>
+            <td><code>code: "called"</code></td>
+            <td>Tag verde: <b>"Chamado / Vaga Disponível"</b></td>
+            <td>Aciona contagem regressiva de comparecimento e envio de WhatsApp.</td>
+          </tr>
+          <tr>
+            <td><code>code: "enrolled"</code></td>
+            <td>Tag azul: <b>"Matriculado"</b></td>
+            <td>Cria registro formal em <code>enrollments</code> e encerra o pedido.</td>
+          </tr>
+          <tr>
+            <td><code>code: "rejected"</code></td>
+            <td>Tag vermelha: <b>"Vaga Recusada"</b></td>
+            <td>Responsável manifestou desinteresse na vaga oferecida.</td>
+          </tr>
+          <tr>
+            <td><code>code: "expired"</code></td>
+            <td>Tag vinho: <b>"Prazo Expirado"</b></td>
+            <td>Prazo encerrou sem comparecimento; vaga repassada para o próximo da fila.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SEÇÃO 4: CICLO DA FILA -->
+    <section id="ciclo-fila">
+      <h3>🔄 4. O Ciclo de Vida do Aluno Chamado na Fila de Espera</h3>
+      <p class="section-desc">
+        Esta é a funcionalidade central do SIVE. Veja como os dados transitam no banco desde a inscrição até a efetivação da vaga:
+      </p>
+
+      <div class="lifecycle-flow">
+        <div class="lifecycle-step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h5>Inscrição na Fila de Espera <span class="tag-status tag-waiting">waiting</span></h5>
+            <p>
+              O aluno é cadastrado na turma (<code>enrollment_applications</code>). Seus dados socioeconômicos e geográficos são avaliados contra os critérios ativos da organização (<code>organization_criteria</code>). Cada pontuação obtida é congelada em <code>application_criteria_scores</code> e sua posição é gravada em <code>queue_position</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="lifecycle-step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h5>A Unidade Escolar Convoca o Aluno <span class="tag-status tag-called">called</span></h5>
+            <p>
+              Ao surgir vaga (<code>available_vacancies > 0</code>), a escola aciona a chamada. O campo <code>status_id</code> é atualizado para o ID do status <b>'called'</b>. O banco grava <code>called_at = NOW()</code> e calcula a data limite <code>call_deadline_at</code> (ex.: 5 dias úteis). Um registro de histórico é gerado em <code>queue_movements</code> e uma notificação urgente é enfileirada em <code>notifications</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="lifecycle-step">
+          <div class="step-number">3A</div>
+          <div class="step-content">
+            <h5>Desfecho Positivo: Matrícula Concluída <span class="tag-status tag-enrolled">enrolled</span></h5>
+            <p>
+              O responsável comparece com a documentação. A secretaria confere os documentos (<code>criteria_verification_statuses</code>) e confirma a vaga. O status muda para <b>'enrolled'</b> e um novo registro é gerado na tabela <code>enrollments</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="lifecycle-step">
+          <div class="step-number">3B</div>
+          <div class="step-content">
+            <h5>Desfecho Negativo: Recusa ou Expiração <span class="tag-status tag-rejected">rejected / expired</span></h5>
+            <p>
+              Se o responsável recusar a vaga ou o prazo <code>call_deadline_at</code> expirar sem comparecimento, o status é alterado para <b>'rejected'</b> ou <b>'expired'</b>. A vaga é repassada automaticamente para o próximo candidato classificado na fila.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 5: CRITÉRIOS E TRANSPARÊNCIA -->
+    <section>
+      <h3>🔍 5. Como o Banco Atende à Tela: "Por que estou nessa posição?"</h3>
+      <p class="section-desc">
+        Um dos diferenciais inovadores do SIVE é a transparência ativa com os pais exigida por lei e por termos de ajustamento do Ministério Público.
+      </p>
+
+      <div class="callout">
+        <h6>A Tabela <code>application_criteria_scores</code> como "Fotografia" do Cálculo</h6>
+        <p>
+          Para cada inscrição, gravamos o valor bruto informado (ex.: renda per capita de R$ 350,00 ou distância de 420 metros), a nota obtida e o peso percentual aplicado.
+          Isso permite ao portal do responsável executar uma query direta e renderizar o detalhamento completo dos critérios, sem precisar recalcular nada dinamicamente:
+        </p>
+      </div>
+
+      <div style="background:rgba(15, 23, 42, 0.9); padding:16px; border-radius:10px; border:1px solid var(--border); font-family:'JetBrains Mono', monospace; font-size:12px; color:#38bdf8; overflow-x:auto;">
+        SELECT <br>
+        &nbsp;&nbsp;oc.name AS criterio,<br>
+        &nbsp;&nbsp;acs.raw_value_string AS valor_informado,<br>
+        &nbsp;&nbsp;acs.calculated_score AS pontos,<br>
+        &nbsp;&nbsp;acs.applied_weight AS peso_percentual<br>
+        FROM application_criteria_scores acs<br>
+        JOIN organization_criteria oc ON oc.id = acs.criterion_id<br>
+        WHERE acs.application_id = :id_da_solicitacao;
+      </div>
+    </section>
+
+    <!-- SEÇÃO 6: DICAS PARA DEFESA -->
+    <section id="defesa">
+      <h3>🎓 6. Dicas Estratégicas para Apresentação e Defesa com o Professor</h3>
+      <p class="section-desc">
+        Argumentos de alto nível acadêmico para justificar as escolhas de design do SIVE:
+      </p>
+
+      <div class="tip-box">
+        <h5>5 Argumentos Irrefutáveis para sua Apresentação:</h5>
+        <ul>
+          <li>
+            <b>1. Desacoplamento Multi-tenant Real:</b> O SIVE não atende apenas uma prefeitura específica. Redes privadas de ensino (Objetivo, Anglo) e municípios diferentes coexistem na mesma base de dados com regras de isolamento rígidas por <code>organization_id</code>.
+          </li>
+          <li>
+            <b>2. Rigor Relacional e Terceira Forma Normal (3FN):</b> Em vez de usar tipos ENUM proprietários do PostgreSQL ou colunas com strings soltas, usamos tabelas de catálogo com chave primária e estrangeira, garantindo integridade referencial nativa.
+          </li>
+          <li>
+            <b>3. Histórico Obrigatório com Justificativa em Vagas:</b> O número de vagas não é simplesmente sobrescrito. Qualquer alteração exige um registro em <code>vacancy_history</code> com o ID do servidor e a justificativa legal, atendendo às exigências dos Tribunais de Contas.
+          </li>
+          <li>
+            <b>4. Explicabilidade Algorítmica e LGPD:</b> A tabela <code>application_criteria_scores</code> garante que a prefeitura possa provar judicialmente a qualquer pai por que o filho dele está na posição X, sem expor dados sensíveis dos alunos vizinhos.
+          </li>
+          <li>
+            <b>5. Rastreabilidade Completa do Aluno Chamado:</b> A convocação não é um evento volátil; ela possui timestamps formais de disparo (<code>called_at</code>), prazo de vigência (<code>call_deadline_at</code>) e auditoria na linha do tempo (<code>queue_movements</code>).
+          </li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <p><b>SIVE — Sistema Integrado de Vagas Escolares</b> · Guia de Leitura e Arquitetura do Banco de Dados · Outubro de 2026</p>
+  </footer>
+
+</body>
+</html>
