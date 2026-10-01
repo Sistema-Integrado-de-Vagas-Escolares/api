@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIVE — Diagrama de Classes Java (Spring Boot / JPA)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --accent: #38bdf8;
+      --spring: #6db33f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      background: rgba(109, 179, 63, 0.15);
+      color: var(--spring);
+      border: 1px solid rgba(109, 179, 63, 0.3);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    h1 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button, a.btn {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    button:hover, a.btn:hover {
+      background: #334155;
+      border-color: #475569;
+      color: #fff;
+    }
+
+    button.primary, a.btn.primary {
+      background: var(--primary);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.primary:hover, a.btn.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    #diagram-container {
+      flex: 1;
+      position: relative;
+      background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0b1120 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #svg-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .hint-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      padding: 8px 18px;
+      border-radius: 9999px;
+      font-size: 12px;
+      color: var(--text-muted);
+      pointer-events: none;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    .floating-controls {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 5;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 18px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    }
+
+    #loading {
+      position: absolute;
+      font-size: 16px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      border-top: 3px solid var(--accent);
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-group">
+      <span class="badge">SPRING BOOT 3 · JPA</span>
+      <h1>SIVE — Diagrama de Classes e Entidades Java</h1>
+    </div>
+
+    <div class="actions">
+      <a href="erd.html" class="btn">🗄️ Modelo de Banco (ERD)</a>
+      <a href="guia_leitura_modelo.html" class="btn">📖 Guia do Modelo</a>
+      <button onclick="resetZoom()">↺ Centralizar</button>
+      <button onclick="downloadPNG()">📷 Salvar PNG</button>
+      <button class="primary" onclick="copyMermaidCode()">📋 Copiar Código Mermaid</button>
+    </div>
+  </header>
+
+  <div id="diagram-container">
+    <div id="loading">
+      <div class="spinner"></div>
+      <span>Carregando diagrama de classes...</span>
+    </div>
+    <div id="svg-wrapper"></div>
+
+    <div class="floating-controls">
+      <button class="icon-btn" onclick="zoomIn()" title="Aumentar zoom">+</button>
+      <button class="icon-btn" onclick="zoomOut()" title="Diminuir zoom">-</button>
+      <button class="icon-btn" onclick="resetZoom()" title="Resetar visão">⛶</button>
+    </div>
+
+    <div class="hint-bar">
+      Use o botão esquerdo para arrastar (pan) · Roda do mouse para zoom
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0b1120',
+        primaryColor: '#1e293b',
+        primaryBorderColor: '#0284c7',
+        primaryTextColor: '#f8fafc',
+        lineColor: '#38bdf8',
+        secondaryColor: '#0f172a',
+        tertiaryColor: '#1e293b'
+      }
+    });
+
+    const mermaidCode = `classDiagram
+    direction TB
+
+    class BaseEntity {
+        <<MappedSuperclass>>
+        +UUID id
+        +Long version
+        +Instant createdAt
+        +Instant updatedAt
+    }
+
+    class BaseLookupEntity {
+        <<MappedSuperclass>>
+        +UUID id
+        +String code
+    }
+
+    class Address {
+        <<Embeddable>>
+        +String street
+        +String number
+        +String neighborhood
+        +String city
+        +String state
+        +String zipCode
+        +BigDecimal latitude
+        +BigDecimal longitude
+    }
+
+    class Organization {
+        <<Entity>>
+        +String code
+        +String legalName
+        +String tradeName
+        +String documentCnpj
+        +String systemSubdomain
+        +String customDomain
+        +OrganizationSettingsConfig settings
+    }
+
+    class School {
+        <<Entity>>
+        +String inepCode
+        +String name
+        +Address address
+        +String phone
+        +String email
+        +Integer totalCapacity
+        +Integer totalClassrooms
+    }
+
+    class User {
+        <<Entity>>
+        +String name
+        +String email
+        +String cpf
+        +String phone
+        +String passwordHash
+        +Instant lastLoginAt
+    }
+
+    class UserMembership {
+        <<Entity>>
+        +UUID id
+        +User user
+        +Organization organization
+        +School school
+        +Role role
+        +UserStatus status
+    }
+
+    class SchoolClass {
+        <<Entity>>
+        +String gradeName
+        +Short schoolYear
+        +Integer totalCapacity
+        +Integer availableVacancies
+    }
+
+    class VacancyHistory {
+        <<Entity>>
+        +UUID id
+        +Integer previousVacancies
+        +Integer newVacancies
+        +Integer variation
+        +String reason
+        +Instant createdAt
+    }
+
+    class Guardian {
+        <<Entity>>
+        +String name
+        +String cpf
+        +String email
+        +String phone
+        +Boolean portalAccessEnabled
+        +Boolean isSoloParent
+        +Boolean receivesSocialBenefit
+        +BigDecimal perCapitaIncome
+        +Boolean isRentedHousing
+        +Address address
+    }
+
+    class Student {
+        <<Entity>>
+        +String name
+        +LocalDate birthDate
+        +String cpf
+        +String birthCertificateNumber
+        +String gender
+        +Boolean hasSpecialNeeds
+        +String specialNeedsDescription
+    }
+
+    class StudentGuardian {
+        <<Entity>>
+        +UUID id
+        +Boolean isPrimaryContact
+        +Boolean hasLegalCustody
+        +Instant createdAt
+    }
+
+    class OrganizationCriterion {
+        <<Entity>>
+        +String code
+        +String name
+        +String description
+        +BigDecimal maxPoints
+        +BigDecimal weightPercent
+        +Boolean isTiebreaker
+        +Integer tiebreakerOrder
+        +Boolean requiresDocumentProof
+        +Boolean isActive
+        +CriteriaRulesConfig rulesConfig
+    }
+
+    class EnrollmentApplication {
+        <<Entity>>
+        +String protocolNumber
+        +Integer queuePosition
+        +BigDecimal totalScore
+        +BigDecimal calculatedDistanceMeters
+        +Boolean hasSiblingInSchool
+        +Instant calledAt
+        +Instant callDeadlineAt
+        +Instant resolvedAt
+        +String resolutionNotes
+    }
+
+    class ApplicationCriteriaScore {
+        <<Entity>>
+        +BigDecimal rawValueNumeric
+        +String rawValueString
+        +BigDecimal calculatedScore
+        +BigDecimal appliedWeight
+        +Boolean isQualified
+        +String verificationNotes
+    }
+
+    class QueueMovement {
+        <<Entity>>
+        +UUID id
+        +Integer previousPosition
+        +Integer newPosition
+        +String description
+        +QueueMovementMetadata metadata
+        +Instant createdAt
+    }
+
+    class Enrollment {
+        <<Entity>>
+        +String enrollmentCode
+        +Boolean isActive
+        +LocalDate enrolledAt
+        +LocalDate leftAt
+        +String leaveReason
+    }
+
+    class Notification {
+        <<Entity>>
+        +UUID id
+        +String title
+        +String message
+        +Instant sentAt
+        +Instant readAt
+    }
+
+    class AuditLog {
+        <<Entity>>
+        +UUID id
+        +String action
+        +String entityName
+        +UUID entityId
+        +AuditDiffData diffData
+        +String ipAddress
+        +Instant createdAt
+    }
+
+    BaseEntity <|-- Organization
+    BaseEntity <|-- School
+    BaseEntity <|-- User
+    BaseEntity <|-- SchoolClass
+    BaseEntity <|-- Guardian
+    BaseEntity <|-- Student
+    BaseEntity <|-- OrganizationCriterion
+    BaseEntity <|-- EnrollmentApplication
+    BaseEntity <|-- ApplicationCriteriaScore
+    BaseEntity <|-- Enrollment
+
+    Organization "1" *-- "0..*" School : administra
+    Organization "1" *-- "0..*" OrganizationCriterion : parametriza
+    Organization "1" *-- "0..*" EnrollmentApplication : gerencia
+    Organization "1" *-- "0..*" UserMembership : escopo
+
+    School "1" *-- "0..*" SchoolClass : oferta turmas
+    SchoolClass "1" *-- "0..*" VacancyHistory : histórico de vagas
+    SchoolClass "1" *-- "0..*" EnrollmentApplication : fila da turma
+
+    User "1" *-- "0..*" UserMembership : possui vínculos
+    User "0..1" -- "0..1" Guardian : login do responsável
+    User "1" *-- "0..*" VacancyHistory : opera ajustes
+    User "1" *-- "0..*" QueueMovement : operador da ação
+
+    Guardian "1" *-- "1..*" StudentGuardian : possui dependentes
+    Student "1" *-- "1..*" StudentGuardian : possui responsáveis
+
+    Guardian "1" *-- "0..*" EnrollmentApplication : solicita vaga
+    Student "1" *-- "0..*" EnrollmentApplication : é candidato
+    Student "1" *-- "0..*" Enrollment : possui matrículas
+
+    EnrollmentApplication "1" *-- "0..*" ApplicationCriteriaScore : detalha notas
+    EnrollmentApplication "1" *-- "0..*" QueueMovement : linha do tempo
+    EnrollmentApplication "0..1" -- "0..1" Enrollment : gera matrícula
+    EnrollmentApplication "1" *-- "0..*" Notification : gera avisos
+    Guardian "1" *-- "0..*" Notification : recebe avisos
+`;
+
+    let panZoomInstance = null;
+
+    async function renderDiagram() {
+      const wrapper = document.getElementById('svg-wrapper');
+      const loading = document.getElementById('loading');
+
+      try {
+        const { svg } = await mermaid.render('mermaid-svg', mermaidCode);
+        loading.style.display = 'none';
+        wrapper.innerHTML = svg;
+
+        const svgElement = wrapper.querySelector('svg');
+        svgElement.style.width = '100%';
+        svgElement.style.height = '100%';
+
+        panZoomInstance = svgPanZoom(svgElement, {
+          zoomEnabled: true,
+          controlIconsEnabled: false,
+          fit: true,
+          center: true,
+          minZoom: 0.1,
+          maxZoom: 10
+        });
+
+      } catch (err) {
+        console.error(err);
+        loading.innerHTML = '<span style="color: #ef4444">Erro ao renderizar o diagrama de classes.</span>';
+      }
+    }
+
+    function zoomIn() {
+      if (panZoomInstance) panZoomInstance.zoomIn();
+    }
+
+    function zoomOut() {
+      if (panZoomInstance) panZoomInstance.zoomOut();
+    }
+
+    function resetZoom() {
+      if (panZoomInstance) {
+        panZoomInstance.reset();
+        panZoomInstance.fit();
+        panZoomInstance.center();
+      }
+    }
+
+    function downloadPNG() {
+      const svg = document.querySelector('#svg-wrapper svg');
+      if (!svg) return alert('Diagrama ainda não carregado');
+
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svg);
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const URLObj = window.URL || window.webkitURL || window;
+      const blobURL = URLObj.createObjectURL(svgBlob);
+
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        const scale = 2;
+        canvas.width = svg.getBoundingClientRect().width * scale || 3000;
+        canvas.height = svg.getBoundingClientRect().height * scale || 2000;
+        const context = canvas.getContext('2d');
+        context.fillStyle = '#0b1120';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        const pngURL = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pngURL;
+        downloadLink.download = 'sive-diagrama-classes-java.png';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      };
+      image.src = blobURL;
+    }
+
+    function copyMermaidCode() {
+      navigator.clipboard.writeText(mermaidCode).then(() => {
+        alert('Código Mermaid do diagrama de classes copiado com sucesso!');
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', renderDiagram);
+  </script>
+</body>
+</html>
